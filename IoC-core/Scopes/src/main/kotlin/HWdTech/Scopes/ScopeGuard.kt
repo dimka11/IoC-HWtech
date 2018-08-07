@@ -1,3 +1,10 @@
 package HWdTech.Scopes
 
-class ScopeGuard
+import java.io.Closeable
+
+class ScopeGuard : Closeable {
+    override fun close() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+}
