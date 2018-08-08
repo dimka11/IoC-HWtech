@@ -3,6 +3,7 @@ package HWdTech.IoC
 import java.util.concurrent.CyclicBarrier
 import kotlin.test.assertNotSame
 import kotlin.test.assertSame
+import kotlin.test.assertTrue
 import org.junit.Test as test
 
 class `Scopes tests` {
@@ -70,6 +71,115 @@ class `Scopes tests` {
         barrier.await()
 
         assertNotSame(scope1, scope2)
+    }
+
+    @test
+    fun `Scopes should register and resolve dependency`() {
+        var wasCalled = false
+
+        Scopes.startNew().use {
+            it.register("dep", { wasCalled = true })
+            it.resolve("dep")(arrayOf())
+        }
+
+        assertTrue(wasCalled)
+    }
+
+    @test
+    fun `Scopes should use parent scope to resolve dependency`() {
+        var wasCalled = false
+
+        Scopes.startNew().use {
+            var rootScope = it
+
+            it.register("dep", { wasCalled = true })
+
+            Scopes.startNew().use {
+
+                Scopes.startNew().use {
+                    assertNotSame(rootScope, it, "Current scope must be not same as initial scope.")
+
+                    it.resolve("dep")(arrayOf())
+                }
+            }
+        }
+
+        assertTrue(wasCalled)
+    }
+
+    @test(expected = ResolveDependencyError::class)
+    fun `Root scope should throw ResolveSependencyError if could not resolve dependency by key`() {
+        Scopes.startNew().use {
+            it.resolve("dep")
+        }
+    }
+
+    @test(expected = ResolveDependencyError::class)
+    fun `Child scope should throw ResolveSependencyError if could not resolve dependency by key`() {
+        Scopes.startNew().use {
+            val rootScope = it
+
+            Scopes.startNew().use {
+                assertNotSame(rootScope, it, "Current scope must be not same as initial scope.")
+
+                it.resolve("dep")
+            }
+        }
+    }
+
+    @test
+    fun `Child scope should allow to replace IIoCResolverStartegy`() {
+        var wasCalled1 = false
+        var wasCalled2 = false
+
+        Scopes.startNew().use {
+            Scopes.startNew().use {
+                it.register("dep", { wasCalled1 = true })
+                it.register("dep", { wasCalled2 = true })
+
+                it.resolve("dep")(arrayOf())
+            }
+        }
+
+        assertTrue(!wasCalled1 && wasCalled2)
+    }
+
+    @test
+    fun `Root scope should allow to replace IIoCResolverStartegy`() {
+        var wasCalled1 = false
+        var wasCalled2 = false
+
+        Scopes.startNew().use {
+            it.register("dep", { wasCalled1 = true })
+            it.register("dep", { wasCalled2 = true })
+
+            it.resolve("dep")(arrayOf())
+        }
+
+        assertTrue(!wasCalled1 && wasCalled2)
+    }
+
+    @test
+    fun `Child scope should overlap dependency`() {
+        var wasCalled1 = false
+        var wasCalled2 = false
+
+        Scopes.startNew().use {
+            it.register("dep", { wasCalled1 = true })
+
+            Scopes.startNew().use {
+                it.register("dep", { wasCalled2 = true })
+
+                it.resolve("dep")(arrayOf())
+
+                assertTrue(!wasCalled1 && wasCalled2)
+            }
+            it.resolve("dep")(arrayOf())
+
+            assertTrue(wasCalled1)
+        }
+
+
     }
 
 }
