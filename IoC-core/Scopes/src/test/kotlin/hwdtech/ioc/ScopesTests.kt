@@ -1,4 +1,4 @@
-package HWdTech.IoC
+package hwdtech.ioc
 
 import java.util.concurrent.CyclicBarrier
 import kotlin.test.assertNotSame
@@ -27,16 +27,16 @@ class `Scopes tests` {
 
     @test
     fun `use should return back to previous scope`() {
-        Scopes.startNew().use {
-            val parentScope = it
-            assertSame(it, Scopes.current, "Created scope should be a current scope.")
+        Scopes.startNew().use { s ->
+            val parentScope = s
+            assertSame(s, Scopes.current, "Created scope should be a current scope.")
 
             Scopes.startNew().use {
                 assertNotSame(parentScope, it, "Created scope should be different from previous")
                 assertSame(it, Scopes.current, "Created new scope should be a current scope.")
             }
 
-            assertSame(it, Scopes.current, "Current scope should be equal to parent scope")
+            assertSame(s, Scopes.current, "Current scope should be equal to parent scope")
         }
     }
 
@@ -75,24 +75,23 @@ class `Scopes tests` {
 
     @test
     fun `Scopes should register and resolve dependency`() {
-        var wasCalled = false
-
         Scopes.startNew().use {
+            var wasCalled = false
             it.register("dep", { wasCalled = true })
-            it.resolve("dep")(arrayOf())
-        }
 
-        assertTrue(wasCalled)
+            it.resolve("dep")(arrayOf())
+
+            assertTrue(wasCalled)
+        }
     }
 
     @test
     fun `Scopes should use parent scope to resolve dependency`() {
-        var wasCalled = false
+        Scopes.startNew().use { s ->
+            val rootScope = s
+            var wasCalled = false
 
-        Scopes.startNew().use {
-            var rootScope = it
-
-            it.register("dep", { wasCalled = true })
+            s.register("dep", { wasCalled = true })
 
             Scopes.startNew().use {
 
@@ -100,11 +99,11 @@ class `Scopes tests` {
                     assertNotSame(rootScope, it, "Current scope must be not same as initial scope.")
 
                     it.resolve("dep")(arrayOf())
+
+                    assertTrue(wasCalled)
                 }
             }
         }
-
-        assertTrue(wasCalled)
     }
 
     @test(expected = ResolveDependencyError::class)
@@ -129,34 +128,35 @@ class `Scopes tests` {
 
     @test
     fun `Child scope should allow to replace IIoCResolverStartegy`() {
-        var wasCalled1 = false
-        var wasCalled2 = false
-
         Scopes.startNew().use {
             Scopes.startNew().use {
+                var wasCalled1 = false
+                var wasCalled2 = false
+
+
                 it.register("dep", { wasCalled1 = true })
                 it.register("dep", { wasCalled2 = true })
 
                 it.resolve("dep")(arrayOf())
+
+                assertTrue(!wasCalled1 && wasCalled2)
             }
         }
-
-        assertTrue(!wasCalled1 && wasCalled2)
     }
 
     @test
     fun `Root scope should allow to replace IIoCResolverStartegy`() {
-        var wasCalled1 = false
-        var wasCalled2 = false
-
         Scopes.startNew().use {
+            var wasCalled1 = false
+            var wasCalled2 = false
+
             it.register("dep", { wasCalled1 = true })
             it.register("dep", { wasCalled2 = true })
 
             it.resolve("dep")(arrayOf())
-        }
 
-        assertTrue(!wasCalled1 && wasCalled2)
+            assertTrue(!wasCalled1 && wasCalled2)
+        }
     }
 
     @test
@@ -178,8 +178,5 @@ class `Scopes tests` {
 
             assertTrue(wasCalled1)
         }
-
-
     }
-
 }

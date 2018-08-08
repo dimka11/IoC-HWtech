@@ -1,4 +1,4 @@
-package HWdTech.IoC
+package hwdtech.ioc
 
 import kotlin.concurrent.getOrSet
 
