@@ -77,7 +77,7 @@ class `Scopes tests` {
     fun `Scopes should register and resolve dependency`() {
         Scopes.startNew().use {
             var wasCalled = false
-            it.register("dep", { wasCalled = true })
+            it.register("dep", { wasCalled = true; return@register Any() })
 
             it.resolve("dep")(arrayOf())
 
@@ -91,7 +91,7 @@ class `Scopes tests` {
             val rootScope = s
             var wasCalled = false
 
-            s.register("dep", { wasCalled = true })
+            s.register("dep", { wasCalled = true; return@register Any() })
 
             Scopes.startNew().use {
 
@@ -134,8 +134,8 @@ class `Scopes tests` {
                 var wasCalled2 = false
 
 
-                it.register("dep", { wasCalled1 = true })
-                it.register("dep", { wasCalled2 = true })
+                it.register("dep", { wasCalled1 = true; return@register Any() })
+                it.register("dep", { wasCalled2 = true; return@register Any() })
 
                 it.resolve("dep")(arrayOf())
 
@@ -150,8 +150,8 @@ class `Scopes tests` {
             var wasCalled1 = false
             var wasCalled2 = false
 
-            it.register("dep", { wasCalled1 = true })
-            it.register("dep", { wasCalled2 = true })
+            it.register("dep", { wasCalled1 = true; return@register Any() })
+            it.register("dep", { wasCalled2 = true; return@register Any() })
 
             it.resolve("dep")(arrayOf())
 
@@ -165,10 +165,10 @@ class `Scopes tests` {
         var wasCalled2 = false
 
         Scopes.startNew().use {
-            it.register("dep", { wasCalled1 = true })
+            it.register("dep", { wasCalled1 = true; return@register Any() })
 
             Scopes.startNew().use {
-                it.register("dep", { wasCalled2 = true })
+                it.register("dep", { wasCalled2 = true; return@register Any() })
 
                 it.resolve("dep")(arrayOf())
 

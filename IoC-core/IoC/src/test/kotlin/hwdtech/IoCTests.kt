@@ -1,3 +1,0 @@
-package hwdtech
-
-class IoCTests

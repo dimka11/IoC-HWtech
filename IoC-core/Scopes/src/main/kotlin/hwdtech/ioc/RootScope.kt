@@ -8,7 +8,7 @@ class RootScope : IScope {
     }
 
     override fun resolve(key: Any): IIoCResolverStrategy {
-        return strategies.getOrElse(key, { throw ResolveDependencyError("Dependency $key") })
+        return strategies.getOrElse(key, { throw ResolveDependencyError("Dependency '$key'") })
     }
 
     override fun close() {

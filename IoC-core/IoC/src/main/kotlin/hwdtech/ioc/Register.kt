@@ -1,5 +1,5 @@
 package hwdtech.ioc
 
-fun Register(key: Any, strategy: IIoCResolverStrategy) {
-    TODO("ioc.Register should be implemented")
+fun register(key: Any, strategy: IIoCResolverStrategy) {
+    Scopes.current.register(key, strategy)
 }
