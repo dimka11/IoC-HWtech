@@ -30,11 +30,11 @@ open class Scopes {
         }
 
         private fun newScope(parentScope: IScope): IScope {
-            return ScopeImpl({ current = parentScope })
+            return ChildScope(parentScope)
         }
 
         private fun newScope(): IScope {
-            return ScopeImpl({ remove() })
+            return RootScope()
         }
 
         internal fun remove() {

@@ -1,8 +1,7 @@
 package HWdTech.IoC
 
-class ScopeImpl(closingStrategy_: () -> Unit) : IScope {
+class RootScope : IScope {
     private val strategies = hashMapOf<Any, IIoCResolverStrategy>()
-    private val closingStrategy = closingStrategy_
 
     override fun register(key: Any, strategy: IIoCResolverStrategy) {
         strategies.put(key, strategy)
@@ -13,6 +12,6 @@ class ScopeImpl(closingStrategy_: () -> Unit) : IScope {
     }
 
     override fun close() {
-        closingStrategy()
+        Scopes.remove()
     }
 }
