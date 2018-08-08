@@ -19,10 +19,10 @@ open class Scopes {
         fun startNew(): IScope {
             var nextScope = { s: IScope -> newScope(s) }
 
-            val currentScope = scopesInvoker.getOrSet {
+            val currentScope = scopesInvoker.getOrSet({
                 nextScope = { s: IScope -> s }
-                return newScope()
-            }
+                return@getOrSet newScope()
+            })
 
             current = nextScope(currentScope)
 

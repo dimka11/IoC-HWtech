@@ -1,20 +1,18 @@
 package HWdTech.IoC
 
-import kotlin.test.assertNotNull
 import kotlin.test.assertNotSame
 import kotlin.test.assertSame
 import org.junit.Test as test
 
 class `Scopes tests` {
     @test
-    fun `Current scope is not null always`() {
-        assertNotNull(Scopes.current, "Current scope should be not null.")
+    fun `Current scope always exists`() {
+        Scopes.current
     }
 
     @test
-    fun `New scope created by startNew must be a not null`() {
+    fun `New scope created by startNew must be the current scope`() {
         Scopes.startNew().use {
-            assertNotNull(it, "Created scope should be not null.")
             assertSame(it, Scopes.current, "Created scope should be a current scope.")
         }
     }
@@ -32,5 +30,13 @@ class `Scopes tests` {
 
             assertSame(it, Scopes.current, "Current scope should be equal to parent scope")
         }
+    }
+
+    @test
+    fun `Current scope always exists even if single scope was deleted before`() {
+        Scopes.current.use {
+
+        }
+        Scopes.current
     }
 }
