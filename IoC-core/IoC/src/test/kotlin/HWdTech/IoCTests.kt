@@ -1,3 +1,0 @@
-package HWdTech
-
-class IoCTests
