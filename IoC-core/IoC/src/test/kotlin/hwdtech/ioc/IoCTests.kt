@@ -76,4 +76,28 @@ class `IoC tests` {
             Mockito.verify(m).register("dep", resolverStartegy)
         }
     }
+
+    @test(expected = ResolveDependencyError::class)
+    fun `resolve method should handle unexpected exception from IIoCResolveStrategy`() {
+        Scopes.startNew().use {
+            val m = mock(IScope::class.java)
+
+            Mockito.`when`(m.resolve("dep")).thenThrow(Error())
+
+            Scopes.current = m
+            resolve<Any>("dep")
+        }
+    }
+
+    @test(expected = ResolveDependencyError::class)
+    fun `resolve method should handle ResolveDependencyError exception from IIoCResolveStrategy`() {
+        Scopes.startNew().use {
+            val m = mock(IScope::class.java)
+
+            Mockito.`when`(m.resolve("dep")).thenThrow(ResolveDependencyError("some error"))
+
+            Scopes.current = m
+            resolve<Any>("dep")
+        }
+    }
 }
