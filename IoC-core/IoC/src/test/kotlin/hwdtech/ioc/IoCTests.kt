@@ -10,7 +10,7 @@ import org.junit.Test as test
 class `IoC tests` {
     @test
     fun `register and resolve methods should be used to resolve dependency`() {
-        Scopes.startNew().use {
+        Scopes.startNew().use { _ ->
             var wasCalled = false
             val obj = 1
 
@@ -22,14 +22,14 @@ class `IoC tests` {
 
     @test(expected = ResolveDependencyError::class)
     fun `resolve method should throw ResolveDependencyError if could not resolve dependency`() {
-        Scopes.startNew().use {
+        Scopes.startNew().use { _ ->
             resolve<Any>("dep")
         }
     }
 
     @test(expected = ResolveDependencyError::class)
     fun `resolve method should throw ResolveDependencyError if could not cast object`() {
-        Scopes.startNew().use {
+        Scopes.startNew().use {  _ ->
             val obj: Any = 1
 
             register("dep", { return@register obj; })
@@ -39,7 +39,7 @@ class `IoC tests` {
 
     @test
     fun `resolve should cast object to required type`() {
-        Scopes.startNew().use {
+        Scopes.startNew().use { _ ->
             val obj: Any = 1
 
             register("dep", { return@register obj; })
@@ -49,10 +49,10 @@ class `IoC tests` {
 
     @test
     fun `resolve method should use Scopes`() {
-        Scopes.startNew().use {
+        Scopes.startNew().use { _ ->
             val m = mock(IScope::class.java)
 
-            Mockito.`when`(m.resolve("dep")).thenReturn { to_: Array<out Any> -> Any() }
+            Mockito.`when`(m.resolve("dep")).thenReturn { _ : Array<out Any> -> Any() }
 
             Scopes.current = m
             resolve<Any>("dep")
@@ -63,10 +63,10 @@ class `IoC tests` {
 
     @test
     fun `register method should use Scopes`() {
-        Scopes.startNew().use {
+        Scopes.startNew().use { _ ->
             val m = mock(IScope::class.java)
 
-            val resolverStartegy = { to_: Array<out Any> -> Any() }
+            val resolverStartegy = { _ : Array<out Any> -> Any() }
 
             Mockito.doNothing().`when`(m).register("dep", resolverStartegy)
 
@@ -79,7 +79,7 @@ class `IoC tests` {
 
     @test(expected = ResolveDependencyError::class)
     fun `resolve method should handle unexpected exception from IIoCResolveStrategy`() {
-        Scopes.startNew().use {
+        Scopes.startNew().use { _ ->
             val m = mock(IScope::class.java)
 
             Mockito.`when`(m.resolve("dep")).thenThrow(Error())
@@ -91,7 +91,7 @@ class `IoC tests` {
 
     @test(expected = ResolveDependencyError::class)
     fun `resolve method should handle ResolveDependencyError exception from IIoCResolveStrategy`() {
-        Scopes.startNew().use {
+        Scopes.startNew().use { _ ->
             val m = mock(IScope::class.java)
 
             Mockito.`when`(m.resolve("dep")).thenThrow(ResolveDependencyError("some error"))

@@ -20,7 +20,7 @@ class `Scopes tests` {
 
     @test
     fun `New scope created by startNew must be the current scope`() {
-        Scopes.startNew().use {
+        Scopes.startNew().use { it ->
             assertSame(it, Scopes.current, "Created scope should be a current scope.")
         }
     }
@@ -31,7 +31,7 @@ class `Scopes tests` {
             val parentScope = s
             assertSame(s, Scopes.current, "Created scope should be a current scope.")
 
-            Scopes.startNew().use {
+            Scopes.startNew().use { it ->
                 assertNotSame(parentScope, it, "Created scope should be different from previous")
                 assertSame(it, Scopes.current, "Created new scope should be a current scope.")
             }
@@ -42,7 +42,7 @@ class `Scopes tests` {
 
     @test
     fun `Current scope always exists even if single scope was deleted before`() {
-        Scopes.current.use {
+        Scopes.current.use { _ ->
 
         }
         Scopes.current
@@ -50,32 +50,34 @@ class `Scopes tests` {
 
     @test
     fun `Scopes in different threads are diffrent`() {
-        var scope1 = Scopes.current
-        var scope2 = Scopes.current
+        Scopes.current.use { _ ->
+            var scope1 = Scopes.current
+            var scope2 = Scopes.current
 
-        val barrier = CyclicBarrier(3)
+            val barrier = CyclicBarrier(3)
 
-        val thread1 = Thread(Runnable {
-            scope1 = Scopes.current
+            val thread1 = Thread(Runnable {
+                scope1 = Scopes.current
+                barrier.await()
+            })
+
+            val thread2 = Thread(Runnable {
+                scope2 = Scopes.current
+                barrier.await()
+            })
+
+            thread1.start()
+            thread2.start()
+
             barrier.await()
-        })
 
-        val thread2 = Thread(Runnable {
-            scope2 = Scopes.current
-            barrier.await()
-        })
-
-        thread1.start()
-        thread2.start()
-
-        barrier.await()
-
-        assertNotSame(scope1, scope2)
+            assertNotSame(scope1, scope2)
+        }
     }
 
     @test
     fun `Scopes should register and resolve dependency`() {
-        Scopes.startNew().use {
+        Scopes.startNew().use { it ->
             var wasCalled = false
             it.register("dep", { wasCalled = true; return@register Any() })
 
@@ -93,7 +95,7 @@ class `Scopes tests` {
 
             s.register("dep", { wasCalled = true; return@register Any() })
 
-            Scopes.startNew().use {
+            Scopes.startNew().use { _ ->
 
                 Scopes.startNew().use {
                     assertNotSame(rootScope, it, "Current scope must be not same as initial scope.")
@@ -108,17 +110,17 @@ class `Scopes tests` {
 
     @test(expected = ResolveDependencyError::class)
     fun `Root scope should throw ResolveSependencyError if could not resolve dependency by key`() {
-        Scopes.startNew().use {
+        Scopes.startNew().use { it ->
             it.resolve("dep")
         }
     }
 
     @test(expected = ResolveDependencyError::class)
     fun `Child scope should throw ResolveSependencyError if could not resolve dependency by key`() {
-        Scopes.startNew().use {
-            val rootScope = it
+        Scopes.startNew().use { root ->
+            val rootScope = root
 
-            Scopes.startNew().use {
+            Scopes.startNew().use { it ->
                 assertNotSame(rootScope, it, "Current scope must be not same as initial scope.")
 
                 it.resolve("dep")
@@ -128,8 +130,8 @@ class `Scopes tests` {
 
     @test
     fun `Child scope should allow to replace IIoCResolverStartegy`() {
-        Scopes.startNew().use {
-            Scopes.startNew().use {
+        Scopes.startNew().use { _ ->
+            Scopes.startNew().use { it ->
                 var wasCalled1 = false
                 var wasCalled2 = false
 
@@ -146,7 +148,7 @@ class `Scopes tests` {
 
     @test
     fun `Root scope should allow to replace IIoCResolverStartegy`() {
-        Scopes.startNew().use {
+        Scopes.startNew().use { it ->
             var wasCalled1 = false
             var wasCalled2 = false
 
@@ -164,17 +166,17 @@ class `Scopes tests` {
         var wasCalled1 = false
         var wasCalled2 = false
 
-        Scopes.startNew().use {
-            it.register("dep", { wasCalled1 = true; return@register Any() })
+        Scopes.startNew().use { root ->
+            root.register("dep", { wasCalled1 = true; return@register Any() })
 
-            Scopes.startNew().use {
+            Scopes.startNew().use { it ->
                 it.register("dep", { wasCalled2 = true; return@register Any() })
 
                 it.resolve("dep")(arrayOf())
 
                 assertTrue(!wasCalled1 && wasCalled2)
             }
-            it.resolve("dep")(arrayOf())
+            root.resolve("dep")(arrayOf())
 
             assertTrue(wasCalled1)
         }
