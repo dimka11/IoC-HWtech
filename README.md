@@ -1,4 +1,4 @@
-#h1 **How to**
+#How to
 
 To get a Git project into your build:
 
@@ -21,6 +21,7 @@ allprojects {
 ```
 
 **Step 2.** Add the dependency
+
 ```
 <dependency>
 	    <groupId>com.github.dimka11.IoC-HWtech</groupId>
