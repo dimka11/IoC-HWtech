@@ -4,15 +4,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>HWdTech</groupId>
-    <artifactId>IoC-core</artifactId>
+    <artifactId>IoC-main</artifactId>
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>Scopes</module>
         <module>IoC</module>
+        <module>IoC-core</module>
     </modules>
     <packaging>pom</packaging>
 
-    <name>HWdTech IoC-core</name>
+    <name>HWdTech IoC main</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -39,11 +40,7 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
     <build>
-        <sourceDirectory>src/main/kotlin</sourceDirectory>
-        <testSourceDirectory>src/test/kotlin</testSourceDirectory>
-
         <plugins>
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
