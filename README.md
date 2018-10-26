@@ -22,6 +22,7 @@ allprojects {
 	}
 ```
 **Step 2.** Add the dependency
+
 *maven:*
 ```xml
 <dependency>
